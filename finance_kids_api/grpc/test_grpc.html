@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finance Kids — Tester gRPC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green:   #22c55e;
+      --yellow:  #fbbf24;
+      --blue:    #3b82f6;
+      --pink:    #ec4899;
+      --purple:  #8b5cf6;
+      --red:     #ef4444;
+      --bg:      #fef9f0;
+      --card:    #ffffff;
+      --text:    #1e1b18;
+      --muted:   #78716c;
+      --border:  #e5e7eb;
+      --radius:  16px;
+      --shadow:  0 4px 20px rgba(0,0,0,.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+      color: white;
+      padding: 28px 32px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 4px 24px rgba(124,58,237,.35);
+    }
+    header .logo { font-size: 2.4rem; }
+    header h1 { font-family: 'Fredoka One', cursive; font-size: 1.7rem; line-height: 1.1; }
+    header p  { font-size: .85rem; opacity: .85; margin-top: 2px; }
+    .badge-grpc {
+      margin-left: auto;
+      background: rgba(255,255,255,.2);
+      border: 2px solid rgba(255,255,255,.4);
+      border-radius: 999px;
+      padding: 6px 18px;
+      font-family: 'Fredoka One', cursive;
+      font-size: .95rem;
+      letter-spacing: .5px;
+    }
+
+    /* ── Status bar ── */
+    #status-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: white;
+      border-bottom: 2px solid var(--border);
+      padding: 12px 32px;
+      font-size: .85rem;
+      font-weight: 700;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #d1d5db; }
+    .dot.ok  { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .dot.err { background: var(--red); }
+
+    /* ── Layout ── */
+    main { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 120px); }
+
+    /* ── Sidebar ── */
+    nav {
+      background: white;
+      border-right: 2px solid var(--border);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    nav h2 { font-family: 'Fredoka One', cursive; font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; padding-left: 8px; }
+    .nav-btn {
+      display: flex; align-items: center; gap: 10px;
+      background: none; border: none; cursor: pointer;
+      padding: 12px 14px; border-radius: 12px;
+      font-family: 'Nunito', sans-serif; font-size: .9rem; font-weight: 700;
+      color: var(--text); text-align: left; width: 100%;
+      transition: all .18s;
+    }
+    .nav-btn:hover { background: #f3f0ff; color: var(--purple); }
+    .nav-btn.active { background: linear-gradient(135deg,#7c3aed,#4f46e5); color: white; box-shadow: 0 4px 14px rgba(124,58,237,.3); }
+    .nav-btn .icon { font-size: 1.2rem; }
+
+    /* ── Content ── */
+    section { display: none; padding: 32px; }
+    section.active { display: block; }
+
+    .section-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.4rem; color: var(--purple);
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      border: 2px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    /* ── Form controls ── */
+    label { font-size: .82rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; display: block; margin-bottom: 6px; }
+    input, select {
+      width: 100%; padding: 11px 14px;
+      border: 2px solid var(--border); border-radius: 10px;
+      font-family: 'Nunito', sans-serif; font-size: .95rem;
+      background: #fafafa; color: var(--text);
+      transition: border .18s;
+      margin-bottom: 16px;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--purple); background: white; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 24px; border-radius: 999px; border: none; cursor: pointer;
+      font-family: 'Fredoka One', cursive; font-size: 1rem; letter-spacing: .3px;
+      transition: all .18s; text-decoration: none;
+    }
+    .btn-purple { background: linear-gradient(135deg,#7c3aed,#4f46e5); color: white; box-shadow: 0 4px 14px rgba(124,58,237,.3); }
+    .btn-purple:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(124,58,237,.4); }
+    .btn-green  { background: var(--green); color: white; box-shadow: 0 4px 14px rgba(34,197,94,.3); }
+    .btn-green:hover { transform: translateY(-2px); }
+
+    /* ── Response box ── */
+    .response-box {
+      background: #1e1b18; color: #a3e635; border-radius: 12px;
+      padding: 18px; font-family: 'Courier New', monospace; font-size: .82rem;
+      line-height: 1.6; white-space: pre-wrap; word-break: break-all;
+      max-height: 360px; overflow-y: auto; margin-top: 16px;
+      border: 2px solid #292524;
+    }
+    .response-box.error { color: #f87171; }
+    .response-box.success { color: #86efac; }
+
+    /* ── Lesson cards ── */
+    .lesson-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 14px; margin-top: 16px; }
+    .lesson-card {
+      background: white; border: 2px solid var(--border); border-radius: 14px;
+      padding: 16px; cursor: pointer; transition: all .18s;
+    }
+    .lesson-card:hover { border-color: var(--purple); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(124,58,237,.15); }
+    .lesson-card .lesson-id { font-family: 'Fredoka One', cursive; color: var(--purple); font-size: .85rem; }
+    .lesson-card .lesson-title { font-size: .9rem; font-weight: 700; margin-top: 4px; }
+    .lesson-card .lesson-coins { margin-top: 8px; font-size: .8rem; color: var(--muted); font-weight: 700; }
+
+    /* ── Quiz area ── */
+    .quiz-question { font-size: 1.05rem; font-weight: 700; margin-bottom: 14px; }
+    .options-grid { display: grid; gap: 10px; }
+    .option-btn {
+      background: #f3f0ff; border: 2px solid #ddd6fe; border-radius: 12px;
+      padding: 12px 16px; text-align: left; cursor: pointer;
+      font-family: 'Nunito', sans-serif; font-size: .9rem; font-weight: 700;
+      transition: all .18s; color: var(--text);
+    }
+    .option-btn:hover { background: #ede9fe; border-color: var(--purple); }
+    .option-btn.correct { background: #dcfce7; border-color: var(--green); color: #15803d; }
+    .option-btn.wrong   { background: #fee2e2; border-color: var(--red); color: #b91c1c; }
+
+    /* ── Progress bars ── */
+    .progress-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .progress-label { font-size: .85rem; font-weight: 700; width: 180px; flex-shrink: 0; }
+    .progress-bar-bg { flex: 1; background: #e5e7eb; border-radius: 999px; height: 10px; }
+    .progress-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg,#7c3aed,#4f46e5); transition: width .5s; }
+    .progress-pct { font-size: .8rem; font-weight: 800; color: var(--purple); width: 40px; text-align: right; }
+
+    /* ── Coins display ── */
+    .coins-big { font-family: 'Fredoka One', cursive; font-size: 2.5rem; color: var(--yellow); text-shadow: 2px 2px 0 #d97706; }
+    .stats-row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+    .stat-box {
+      background: white; border: 2px solid var(--border); border-radius: 14px;
+      padding: 14px 20px; text-align: center; flex: 1; min-width: 100px;
+    }
+    .stat-box .stat-val { font-family: 'Fredoka One', cursive; font-size: 1.6rem; }
+    .stat-box .stat-lbl { font-size: .75rem; color: var(--muted); font-weight: 700; text-transform: uppercase; }
+
+    /* ── Badge grid ── */
+    .badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 12px; margin-top: 16px; }
+    .badge-card {
+      border: 2px solid var(--border); border-radius: 14px; padding: 16px; text-align: center;
+      transition: all .2s;
+    }
+    .badge-card.unlocked { border-color: var(--yellow); background: #fffbeb; }
+    .badge-card.locked   { opacity: .45; filter: grayscale(1); }
+    .badge-card .badge-icon { font-size: 2.2rem; }
+    .badge-card .badge-name { font-size: .85rem; font-weight: 800; margin-top: 6px; }
+    .badge-card .badge-desc { font-size: .75rem; color: var(--muted); margin-top: 4px; }
+
+    .loader { display: none; width: 18px; height: 18px; border: 3px solid rgba(255,255,255,.4); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading .loader { display: inline-block; }
+    .loading .btn-text { display: none; }
+
+    .tag { display: inline-block; background: #ede9fe; color: #6d28d9; border-radius: 999px; padding: 2px 10px; font-size: .75rem; font-weight: 800; margin-left: 6px; }
+
+    #feedback-msg {
+      padding: 14px 18px; border-radius: 12px; font-weight: 700;
+      margin-top: 14px; font-size: .95rem; display: none;
+    }
+    #feedback-msg.ok  { background: #dcfce7; color: #15803d; border: 2px solid #86efac; }
+    #feedback-msg.err { background: #fee2e2; color: #b91c1c; border: 2px solid #fca5a5; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🐷</div>
+  <div>
+    <h1>Finance Kids — Tester</h1>
+    <p>Interfaz de prueba para la API gRPC (vía puente HTTP)</p>
+  </div>
+  <div class="badge-grpc">⚡ gRPC API</div>
+</header>
+
+<div id="status-bar">
+  <div class="dot" id="dot"></div>
+  <span id="status-text">Verificando conexión con el servidor gRPC...</span>
+  <button class="btn btn-purple" style="padding:6px 16px;font-size:.8rem;margin-left:auto" onclick="checkHealth()">Reconectar</button>
+</div>
+
+<main>
+  <!-- Sidebar -->
+  <nav>
+    <h2>Servicios gRPC</h2>
+    <button class="nav-btn active" onclick="show('lecciones',this)"><span class="icon">📚</span> ListLessons</button>
+    <button class="nav-btn" onclick="show('detalle',this)"><span class="icon">📖</span> GetLesson</button>
+    <button class="nav-btn" onclick="show('quiz',this)"><span class="icon">❓</span> SubmitQuizAnswer</button>
+    <button class="nav-btn" onclick="show('progreso',this)"><span class="icon">📈</span> GetProgress</button>
+    <button class="nav-btn" onclick="show('insignias',this)"><span class="icon">🏆</span> GetBadges</button>
+  </nav>
+
+  <!-- ─── ListLessons ─── -->
+  <section id="lecciones" class="active">
+    <div class="section-title">📚 ListLessons <span class="tag">GET /bridge/lecciones</span></div>
+    <div class="card">
+      <p style="font-size:.9rem;color:var(--muted);margin-bottom:16px">Lista todas las lecciones disponibles en la plataforma.</p>
+      <button class="btn btn-purple" onclick="loadLessons(this)">
+        <span class="btn-text">🚀 Llamar ListLessons</span>
+        <div class="loader"></div>
+      </button>
+      <div id="lessons-grid" class="lesson-grid"></div>
+      <div class="response-box" id="lessons-raw" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- ─── GetLesson ─── -->
+  <section id="detalle">
+    <div class="section-title">📖 GetLesson <span class="tag">GET /bridge/lecciones/:id</span></div>
+    <div class="card">
+      <label>ID de Lección</label>
+      <select id="lesson-id-select">
+        <option value="L001">L001 — ¿Qué es el dinero? 💰</option>
+        <option value="L002">L002 — El superpoder del ahorro 🐷</option>
+        <option value="L003">L003 — Necesidades vs. Deseos 🍕🎮</option>
+        <option value="L004">L004 — Mi primer presupuesto 📊</option>
+        <option value="L005">L005 — ¿Qué es un banco? 🏦</option>
+      </select>
+      <button class="btn btn-purple" onclick="getLesson(this)">
+        <span class="btn-text">🚀 Llamar GetLesson</span>
+        <div class="loader"></div>
+      </button>
+      <div class="response-box" id="lesson-raw" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- ─── SubmitQuizAnswer ─── -->
+  <section id="quiz">
+    <div class="section-title">❓ SubmitQuizAnswer <span class="tag">POST /bridge/responder</span></div>
+    <div class="card">
+      <p style="font-size:.9rem;color:var(--muted);margin-bottom:16px">Selecciona una lección para cargar sus preguntas e ir respondiendo.</p>
+
+      <label>ID de Estudiante</label>
+      <input type="text" id="q-kid-id" value="kid_001" placeholder="kid_001">
+
+      <label>Lección</label>
+      <select id="q-lesson-select" onchange="loadQuiz()">
+        <option value="">— Selecciona una lección —</option>
+        <option value="L001">L001 — ¿Qué es el dinero?</option>
+        <option value="L002">L002 — El superpoder del ahorro</option>
+        <option value="L003">L003 — Necesidades vs. Deseos</option>
+        <option value="L004">L004 — Mi primer presupuesto</option>
+        <option value="L005">L005 — ¿Qué es un banco?</option>
+      </select>
+
+      <div id="quiz-area" style="display:none">
+        <div id="quiz-questions"></div>
+        <div id="feedback-msg"></div>
+      </div>
+      <div class="response-box" id="quiz-raw" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- ─── GetProgress ─── -->
+  <section id="progreso">
+    <div class="section-title">📈 GetProgress <span class="tag">GET /bridge/progreso/:kid_id</span></div>
+    <div class="card">
+      <label>ID de Estudiante</label>
+      <input type="text" id="prog-kid-id" value="kid_001" placeholder="kid_001">
+      <button class="btn btn-purple" onclick="getProgress(this)">
+        <span class="btn-text">🚀 Llamar GetProgress</span>
+        <div class="loader"></div>
+      </button>
+      <div id="progress-display" style="display:none;margin-top:16px"></div>
+      <div class="response-box" id="progress-raw" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- ─── GetBadges ─── -->
+  <section id="insignias">
+    <div class="section-title">🏆 GetBadges <span class="tag">GET /bridge/insignias/:kid_id</span></div>
+    <div class="card">
+      <label>ID de Estudiante</label>
+      <input type="text" id="badge-kid-id" value="kid_001" placeholder="kid_001">
+      <button class="btn btn-purple" onclick="getBadges(this)">
+        <span class="btn-text">🚀 Llamar GetBadges</span>
+        <div class="loader"></div>
+      </button>
+      <div id="badges-display" class="badge-grid" style="display:none;margin-top:16px"></div>
+      <div class="response-box" id="badges-raw" style="display:none"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+  const BASE = "http://localhost:5001";
+  let currentQuestions = [];
+  let currentLessonId  = "";
+  let currentQIndex    = 0;
+
+  // ── Navegación ──
+  function show(id, btn) {
+    document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    btn.classList.add("active");
+  }
+
+  // ── Loading state ──
+  function setLoading(btn, on) {
+    btn.classList.toggle("loading", on);
+    btn.disabled = on;
+  }
+
+  // ── Health check ──
+  async function checkHealth() {
+    const dot  = document.getElementById("dot");
+    const txt  = document.getElementById("status-text");
+    try {
+      const r = await fetch(`${BASE}/bridge/health`);
+      const d = await r.json();
+      if (d.ok) {
+        dot.className = "dot ok";
+        txt.textContent = `Servidor gRPC conectado en ${d.grpc_server} ✅`;
+      } else {
+        dot.className = "dot err";
+        txt.textContent = `Sin conexión al servidor gRPC: ${d.error || ""}`;
+      }
+    } catch {
+      dot.className = "dot err";
+      txt.textContent = "No se puede conectar al puente (¿está corriendo grpc_bridge.py en puerto 5001?)";
+    }
+  }
+
+  // ── ListLessons ──
+  async function loadLessons(btn) {
+    setLoading(btn, true);
+    try {
+      const r = await fetch(`${BASE}/bridge/lecciones`);
+      const d = await r.json();
+      const raw = document.getElementById("lessons-raw");
+      const grid = document.getElementById("lessons-grid");
+      raw.style.display = "block";
+      raw.textContent = JSON.stringify(d, null, 2);
+      raw.className = "response-box " + (d.ok ? "success" : "error");
+
+      if (d.ok) {
+        grid.innerHTML = d.lecciones.map(l => `
+          <div class="lesson-card" onclick="goLesson('${l.lesson_id}')">
+            <div class="lesson-id">${l.lesson_id}</div>
+            <div class="lesson-title">${l.title}</div>
+            <div class="lesson-coins">🪙 ${l.coins_reward} monedas · ${l.category}</div>
+          </div>
+        `).join("");
+      }
+    } catch(e) {
+      showRaw("lessons-raw", {error: e.message}, true);
+    }
+    setLoading(btn, false);
+  }
+
+  function goLesson(id) {
+    document.querySelectorAll(".nav-btn")[1].click();
+    document.getElementById("lesson-id-select").value = id;
+  }
+
+  // ── GetLesson ──
+  async function getLesson(btn) {
+    setLoading(btn, true);
+    const id = document.getElementById("lesson-id-select").value;
+    try {
+      const r = await fetch(`${BASE}/bridge/lecciones/${id}`);
+      const d = await r.json();
+      showRaw("lesson-raw", d, !d.ok);
+    } catch(e) {
+      showRaw("lesson-raw", {error: e.message}, true);
+    }
+    setLoading(btn, false);
+  }
+
+  // ── Quiz ──
+  async function loadQuiz() {
+    const id = document.getElementById("q-lesson-select").value;
+    if (!id) return;
+    currentLessonId = id;
+    currentQIndex   = 0;
+    const r = await fetch(`${BASE}/bridge/lecciones/${id}`);
+    const d = await r.json();
+    if (!d.ok) { showRaw("quiz-raw", d, true); return; }
+
+    currentQuestions = d.questions;
+    document.getElementById("quiz-area").style.display = "block";
+    document.getElementById("feedback-msg").style.display = "none";
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const area = document.getElementById("quiz-questions");
+    if (currentQIndex >= currentQuestions.length) {
+      area.innerHTML = `<div style="text-align:center;padding:20px">
+        <div style="font-size:2.5rem">🎉</div>
+        <div style="font-family:'Fredoka One',cursive;font-size:1.3rem;color:var(--purple);margin-top:8px">¡Lección completada!</div>
+      </div>`;
+      return;
+    }
+    const q = currentQuestions[currentQIndex];
+    area.innerHTML = `
+      <p style="font-size:.75rem;color:var(--muted);font-weight:800;margin-bottom:8px">
+        PREGUNTA ${currentQIndex+1} DE ${currentQuestions.length}
+      </p>
+      <div class="quiz-question">❓ ${q.question}</div>
+      <div class="options-grid">
+        ${q.options.map(opt => `
+          <button class="option-btn" onclick="submitAnswer('${q.question_id}','${opt[0]}',this)">
+            ${opt}
+          </button>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  async function submitAnswer(qid, answer, btn) {
+    // Deshabilitar todos los botones
+    document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
+
+    const kidId = document.getElementById("q-kid-id").value || "kid_001";
+    try {
+      const r = await fetch(`${BASE}/bridge/responder`, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          kid_id: kidId,
+          lesson_id: currentLessonId,
+          question_id: qid,
+          answer: answer
+        })
+      });
+      const d = await r.json();
+      showRaw("quiz-raw", d, !d.ok);
+
+      btn.classList.add(d.correct ? "correct" : "wrong");
+
+      const fb = document.getElementById("feedback-msg");
+      fb.style.display = "block";
+      fb.className = d.correct ? "ok" : "err";
+      fb.innerHTML = `
+        ${d.correct ? "✅" : "❌"} ${d.encouragement}<br>
+        <small style="font-weight:600">${d.explanation}</small>
+        ${d.correct ? `<span style="float:right">+${d.coins_earned} 🪙</span>` : ""}
+      `;
+
+      setTimeout(() => {
+        currentQIndex++;
+        fb.style.display = "none";
+        renderQuestion();
+      }, 2200);
+
+    } catch(e) {
+      showRaw("quiz-raw", {error: e.message}, true);
+    }
+  }
+
+  // ── GetProgress ──
+  async function getProgress(btn) {
+    setLoading(btn, true);
+    const id = document.getElementById("prog-kid-id").value;
+    try {
+      const r = await fetch(`${BASE}/bridge/progreso/${id}`);
+      const d = await r.json();
+      showRaw("progress-raw", d, !d.ok);
+
+      if (d.ok) {
+        const display = document.getElementById("progress-display");
+        display.style.display = "block";
+        const completed = d.lessons_progress.filter(l => l.completed).length;
+        display.innerHTML = `
+          <div class="stats-row">
+            <div class="stat-box"><div class="stat-val" style="color:var(--yellow)">🪙 ${d.total_coins}</div><div class="stat-lbl">Monedas</div></div>
+            <div class="stat-box"><div class="stat-val" style="color:var(--purple)">Lv.${d.level}</div><div class="stat-lbl">Nivel</div></div>
+            <div class="stat-box"><div class="stat-val" style="color:var(--red)">🔥 ${d.streak_days}</div><div class="stat-lbl">Racha</div></div>
+            <div class="stat-box"><div class="stat-val" style="color:var(--green)">${completed}/${d.lessons_progress.length}</div><div class="stat-lbl">Lecciones</div></div>
+          </div>
+          <h3 style="font-family:'Fredoka One',cursive;margin-bottom:14px;color:var(--purple)">Progreso de lecciones</h3>
+          ${d.lessons_progress.map(l => `
+            <div class="progress-row">
+              <div class="progress-label">${l.completed ? "✅" : "⬜"} ${l.lesson_id}</div>
+              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${l.score}%"></div></div>
+              <div class="progress-pct">${l.score}%</div>
+            </div>
+          `).join("")}
+        `;
+      }
+    } catch(e) {
+      showRaw("progress-raw", {error: e.message}, true);
+    }
+    setLoading(btn, false);
+  }
+
+  // ── GetBadges ──
+  async function getBadges(btn) {
+    setLoading(btn, true);
+    const id = document.getElementById("badge-kid-id").value;
+    try {
+      const r = await fetch(`${BASE}/bridge/insignias/${id}`);
+      const d = await r.json();
+      showRaw("badges-raw", d, !d.ok);
+
+      if (d.ok) {
+        const grid = document.getElementById("badges-display");
+        grid.style.display = "grid";
+        grid.innerHTML = d.badges.map(b => `
+          <div class="badge-card ${b.unlocked ? 'unlocked' : 'locked'}">
+            <div class="badge-icon">${b.icon}</div>
+            <div class="badge-name">${b.name}</div>
+            <div class="badge-desc">${b.description}</div>
+            ${b.unlocked ? '<div style="font-size:.7rem;color:var(--green);font-weight:800;margin-top:6px">DESBLOQUEADA ✅</div>' : ''}
+          </div>
+        `).join("");
+      }
+    } catch(e) {
+      showRaw("badges-raw", {error: e.message}, true);
+    }
+    setLoading(btn, false);
+  }
+
+  function showRaw(id, data, isError = false) {
+    const el = document.getElementById(id);
+    el.style.display = "block";
+    el.className = "response-box " + (isError ? "error" : "success");
+    el.textContent = JSON.stringify(data, null, 2);
+  }
+
+  // Iniciar
+  checkHealth();
+</script>
+</body>
+</html>

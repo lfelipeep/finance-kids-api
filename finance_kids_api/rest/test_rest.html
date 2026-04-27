@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finance Kids — Tester REST</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green:  #22c55e; --yellow: #fbbf24; --blue: #3b82f6;
+      --orange: #f97316; --teal:   #14b8a6; --red:  #ef4444;
+      --bg:     #f0fdf9; --card:   #ffffff; --text: #1e1b18;
+      --muted:  #78716c; --border: #d1fae5;
+      --radius: 16px; --shadow: 0 4px 20px rgba(0,0,0,.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    header {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: white; padding: 28px 32px 24px;
+      display: flex; align-items: center; gap: 16px;
+      box-shadow: 0 4px 24px rgba(5,150,105,.35);
+    }
+    header .logo { font-size: 2.4rem; }
+    header h1 { font-family: 'Fredoka One', cursive; font-size: 1.7rem; line-height: 1.1; }
+    header p  { font-size: .85rem; opacity: .85; margin-top: 2px; }
+    .badge-rest {
+      margin-left: auto; background: rgba(255,255,255,.2);
+      border: 2px solid rgba(255,255,255,.4); border-radius: 999px;
+      padding: 6px 18px; font-family: 'Fredoka One', cursive; font-size: .95rem;
+    }
+
+    #status-bar {
+      display: flex; align-items: center; gap: 10px;
+      background: white; border-bottom: 2px solid var(--border);
+      padding: 12px 32px; font-size: .85rem; font-weight: 700;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #d1d5db; }
+    .dot.ok  { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .dot.err { background: var(--red); }
+
+    main { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 120px); }
+
+    nav {
+      background: white; border-right: 2px solid var(--border);
+      padding: 24px 16px; display: flex; flex-direction: column; gap: 4px;
+    }
+    nav h2 { font-family:'Fredoka One',cursive; font-size:.8rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; padding-left:8px; }
+    .nav-btn {
+      display: flex; align-items: center; gap: 10px;
+      background: none; border: none; cursor: pointer;
+      padding: 11px 14px; border-radius: 12px;
+      font-family: 'Nunito', sans-serif; font-size: .88rem; font-weight: 700;
+      color: var(--text); text-align: left; width: 100%; transition: all .18s;
+    }
+    .nav-btn:hover { background: #ecfdf5; color: #059669; }
+    .nav-btn.active { background: linear-gradient(135deg,#059669,#10b981); color: white; box-shadow: 0 4px 14px rgba(5,150,105,.3); }
+    .nav-btn .icon { font-size: 1.1rem; }
+    .method-badge {
+      margin-left:auto; font-size:.65rem; font-weight:800; border-radius:4px;
+      padding:2px 6px; letter-spacing:.3px;
+    }
+    .get  { background:#dbeafe; color:#1d4ed8; }
+    .post { background:#dcfce7; color:#15803d; }
+
+    section { display: none; padding: 32px; }
+    section.active { display: block; }
+
+    .section-title {
+      font-family: 'Fredoka One', cursive; font-size: 1.4rem; color: #059669;
+      margin-bottom: 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .tag { background:#d1fae5; color:#065f46; border-radius:999px; padding:2px 12px; font-size:.72rem; font-weight:800; font-family:'Nunito',sans-serif; }
+
+    .card {
+      background: var(--card); border-radius: var(--radius);
+      padding: 24px; box-shadow: var(--shadow);
+      border: 2px solid var(--border); margin-bottom: 20px;
+    }
+
+    label { font-size:.82rem; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:6px; }
+    input, select, textarea {
+      width:100%; padding:11px 14px; border:2px solid var(--border); border-radius:10px;
+      font-family:'Nunito',sans-serif; font-size:.95rem; background:#f0fdf9; color:var(--text);
+      transition:border .18s; margin-bottom:16px;
+    }
+    input:focus, select:focus, textarea:focus { outline:none; border-color:#10b981; background:white; }
+    textarea { resize: vertical; min-height: 120px; font-family: 'Courier New', monospace; font-size:.85rem; }
+
+    .btn {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:12px 24px; border-radius:999px; border:none; cursor:pointer;
+      font-family:'Fredoka One',cursive; font-size:1rem; letter-spacing:.3px;
+      transition:all .18s;
+    }
+    .btn-green  { background:linear-gradient(135deg,#059669,#10b981); color:white; box-shadow:0 4px 14px rgba(5,150,105,.3); }
+    .btn-green:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(5,150,105,.4); }
+    .btn-orange { background:var(--orange); color:white; box-shadow:0 4px 14px rgba(249,115,22,.3); }
+    .btn-orange:hover { transform:translateY(-2px); }
+
+    .response-box {
+      background:#1e1b18; color:#a3e635; border-radius:12px;
+      padding:18px; font-family:'Courier New',monospace; font-size:.82rem;
+      line-height:1.6; white-space:pre-wrap; word-break:break-all;
+      max-height:380px; overflow-y:auto; margin-top:16px;
+      border:2px solid #292524;
+    }
+    .response-box.error   { color:#f87171; }
+    .response-box.success { color:#86efac; }
+
+    /* Ranking table */
+    .rank-table { width:100%; border-collapse:collapse; margin-top:16px; }
+    .rank-table th { background:#ecfdf5; color:#059669; font-family:'Fredoka One',cursive; font-size:.85rem; padding:10px 14px; text-align:left; border-bottom:2px solid var(--border); }
+    .rank-table td { padding:12px 14px; border-bottom:1px solid var(--border); font-size:.9rem; font-weight:700; }
+    .rank-table tr:hover td { background:#f0fdf9; }
+
+    /* Lección cards */
+    .lesson-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:12px; margin-top:16px; }
+    .lesson-card {
+      background:white; border:2px solid var(--border); border-radius:14px;
+      padding:16px; cursor:pointer; transition:all .18s;
+    }
+    .lesson-card:hover { border-color:#10b981; transform:translateY(-3px); box-shadow:0 8px 20px rgba(5,150,105,.15); }
+    .lesson-card .lid   { font-family:'Fredoka One',cursive; color:#059669; font-size:.85rem; }
+    .lesson-card .ltitle { font-size:.9rem; font-weight:700; margin-top:4px; }
+    .lesson-card .lmeta  { margin-top:8px; font-size:.78rem; color:var(--muted); font-weight:700; }
+
+    /* Filtros */
+    .filters { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
+    .filters input, .filters select { margin-bottom:0; flex:1; min-width:140px; }
+
+    /* Quiz */
+    .quiz-q { font-size:1rem; font-weight:700; margin-bottom:12px; }
+    .options-grid { display:grid; gap:9px; }
+    .opt-btn {
+      background:#ecfdf5; border:2px solid #a7f3d0; border-radius:12px;
+      padding:12px 16px; text-align:left; cursor:pointer;
+      font-family:'Nunito',sans-serif; font-size:.9rem; font-weight:700;
+      transition:all .18s; color:var(--text);
+    }
+    .opt-btn:hover { background:#d1fae5; border-color:#10b981; }
+    .opt-btn.correct { background:#dcfce7; border-color:var(--green); color:#15803d; }
+    .opt-btn.wrong   { background:#fee2e2; border-color:var(--red); color:#b91c1c; }
+
+    /* Stats */
+    .stats-row { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px; }
+    .stat-box { background:white; border:2px solid var(--border); border-radius:14px; padding:14px 20px; text-align:center; flex:1; min-width:90px; }
+    .stat-box .sv { font-family:'Fredoka One',cursive; font-size:1.5rem; }
+    .stat-box .sl { font-size:.72rem; color:var(--muted); font-weight:700; text-transform:uppercase; }
+
+    .progress-row { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+    .progress-label { font-size:.82rem; font-weight:700; width:170px; flex-shrink:0; }
+    .progress-bar-bg { flex:1; background:#e5e7eb; border-radius:999px; height:9px; }
+    .progress-bar-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,#059669,#10b981); transition:width .5s; }
+    .progress-pct { font-size:.78rem; font-weight:800; color:#059669; width:36px; text-align:right; }
+
+    #resp-feedback {
+      padding:13px 17px; border-radius:12px; font-weight:700;
+      margin-top:13px; font-size:.92rem; display:none;
+    }
+    #resp-feedback.ok  { background:#dcfce7; color:#15803d; border:2px solid #86efac; }
+    #resp-feedback.err { background:#fee2e2; color:#b91c1c; border:2px solid #fca5a5; }
+
+    .loader { display:none; width:17px; height:17px; border:3px solid rgba(255,255,255,.4); border-top-color:white; border-radius:50%; animation:spin .7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .loading .loader  { display:inline-block; }
+    .loading .btn-text { display:none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🐷</div>
+  <div>
+    <h1>Finance Kids — Tester</h1>
+    <p>Interfaz de prueba para la API REST (HTTP directo)</p>
+  </div>
+  <div class="badge-rest">🌐 REST API</div>
+</header>
+
+<div id="status-bar">
+  <div class="dot" id="dot"></div>
+  <span id="status-text">Verificando conexión con el servidor REST...</span>
+  <button class="btn btn-green" style="padding:6px 16px;font-size:.8rem;margin-left:auto" onclick="checkHealth()">Reconectar</button>
+</div>
+
+<main>
+  <!-- Sidebar -->
+  <nav>
+    <h2>Endpoints REST</h2>
+    <button class="nav-btn active" onclick="show('health',this)"><span class="icon">💚</span> Health Check <span class="method-badge get">GET</span></button>
+    <button class="nav-btn" onclick="show('lecciones',this)"><span class="icon">📚</span> Lecciones <span class="method-badge get">GET</span></button>
+    <button class="nav-btn" onclick="show('detalle',this)"><span class="icon">📖</span> Detalle Lección <span class="method-badge get">GET</span></button>
+    <button class="nav-btn" onclick="show('quiz',this)"><span class="icon">❓</span> Responder Quiz <span class="method-badge post">POST</span></button>
+    <button class="nav-btn" onclick="show('registro',this)"><span class="icon">✏️</span> Registrar Niño <span class="method-badge post">POST</span></button>
+    <button class="nav-btn" onclick="show('perfil',this)"><span class="icon">👤</span> Ver Perfil <span class="method-badge get">GET</span></button>
+    <button class="nav-btn" onclick="show('ranking',this)"><span class="icon">🏆</span> Ranking <span class="method-badge get">GET</span></button>
+  </nav>
+
+  <!-- ── Health ── -->
+  <section id="health" class="active">
+    <div class="section-title">💚 Health Check <span class="tag">GET /api/health</span></div>
+    <div class="card">
+      <p style="font-size:.9rem;color:var(--muted);margin-bottom:16px">Verifica que el servidor REST esté en línea y muestra estadísticas básicas.</p>
+      <button class="btn btn-green" onclick="doHealth(this)">
+        <span class="btn-text">🚀 GET /api/health</span><div class="loader"></div>
+      </button>
+      <div id="health-raw" class="response-box" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- ── Lecciones ── -->
+  <section id="lecciones">
+    <div class="section-title">📚 Listar Lecciones <span class="tag">GET /api/lecciones</span></div>
+    <div class="card">
+      <p style="font-size:.9rem;color:var(--muted);margin-bottom:14px">Puedes filtrar por categoría o dificultad (opcional).</p>
+      <div class="filters">
+        <div style="flex:1">
+          <label>Categoría (opcional)</label>
+          <select id="filter-cat">
+            <option value="">— Todas —</option>
+            <option value="conceptos básicos">conceptos básicos</option>
+            <option value="ahorro">ahorro</option>
+            <option value="presupuesto">presupuesto</option>
+            <option value="bancos">bancos</option>
+          </select>
+        </div>
+        <div style="flex:1">
+          <label>Dificultad (opcional)</label>
+          <select id="filter-diff">
+            <option value="">— Todas —</option>
+            <option value="fácil">fácil</option>
+            <option value="medio">medio</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-green" onclick="getLecciones(this)">
+        <span class="btn-text">🚀 GET /api/lecciones</span><div class="loader"></div>
+      </button>
+      <div class="lesson-grid" id="les-grid"></div>
+      <div class="response-box" id="les-raw" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- ── Detalle ── -->
+  <section id="detalle">
+    <div class="section-title">📖 Detalle de Lección <span class="tag">GET /api/lecciones/:id</span></div>
+    <div class="card">
+      <label>ID de Lección</label>
+      <select id="det-id">
+        <option value="L001">L001 — ¿Qué es el dinero? 💰</option>
+        <option value="L002">L002 — El superpoder del ahorro 🐷</option>
+        <option value="L003">L003 — Necesidades vs. Deseos 🍕🎮</option>
+        <option value="L004">L004 — Mi primer presupuesto 📊</option>
+        <option value="L005">L005 — ¿Qué es un banco? 🏦</option>
+      </select>
+      <button class="btn btn-green" onclick="getDetalle(this)">
+        <span class="btn-text">🚀 GET /api/lecciones/:id</span><div class="loader"></div>
+      </button>
+      <div class="response-box" id="det-raw" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- ── Quiz / Respuestas ── -->
+  <section id="quiz">
+    <div class="section-title">❓ Responder Quiz <span class="tag">POST /api/respuestas</span></div>
+    <div class="card">
+      <label>ID de Estudiante</label>
+      <input type="text" id="rq-kid" value="kid_001">
+      <label>Lección</label>
+      <select id="rq-lesson" onchange="loadRestQuiz()">
+        <option value="">— Selecciona —</option>
+        <option value="L001">L001 — ¿Qué es el dinero?</option>
+        <option value="L002">L002 — El superpoder del ahorro</option>
+        <option value="L003">L003 — Necesidades vs. Deseos</option>
+        <option value="L004">L004 — Mi primer presupuesto</option>
+        <option value="L005">L005 — ¿Qué es un banco?</option>
+      </select>
+      <div id="rquiz-area" style="display:none">
+        <div id="rquiz-questions"></div>
+        <div id="resp-feedback"></div>
+      </div>
+      <div class="response-box" id="rquiz-raw" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- ── Registro ── -->
+  <section id="registro">
+    <div class="section-title">✏️ Registrar Estudiante <span class="tag">POST /api/estudiantes</span></div>
+    <div class="card">
+      <label>Nombre del niño/a</label>
+      <input type="text" id="reg-name" placeholder="Ej: Camila">
+      <label>Edad</label>
+      <input type="number" id="reg-age" placeholder="Ej: 9" min="4" max="18">
+      <button class="btn btn-orange" onclick="registrar(this)">
+        <span class="btn-text">🚀 POST /api/estudiantes</span><div class="loader"></div>
+      </button>
+      <div class="response-box" id="reg-raw" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- ── Perfil ── -->
+  <section id="perfil">
+    <div class="section-title">👤 Ver Perfil <span class="tag">GET /api/estudiantes/:kid_id</span></div>
+    <div class="card">
+      <label>ID de Estudiante</label>
+      <input type="text" id="perf-kid" value="kid_001" placeholder="kid_001">
+      <button class="btn btn-green" onclick="getPerfil(this)">
+        <span class="btn-text">🚀 GET /api/estudiantes/:id</span><div class="loader"></div>
+      </button>
+      <div id="perf-display" style="display:none;margin-top:16px"></div>
+      <div class="response-box" id="perf-raw" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- ── Ranking ── -->
+  <section id="ranking">
+    <div class="section-title">🏆 Tabla de Clasificación <span class="tag">GET /api/ranking</span></div>
+    <div class="card">
+      <p style="font-size:.9rem;color:var(--muted);margin-bottom:16px">Muestra todos los estudiantes ordenados por monedas obtenidas.</p>
+      <button class="btn btn-green" onclick="getRanking(this)">
+        <span class="btn-text">🚀 GET /api/ranking</span><div class="loader"></div>
+      </button>
+      <div id="rank-display" style="margin-top:16px"></div>
+      <div class="response-box" id="rank-raw" style="display:none"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+  const BASE = "http://localhost:5000/api";
+  let rqQuestions = [], rqLessonId = "", rqIndex = 0;
+
+  function show(id, btn) {
+    document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    btn.classList.add("active");
+  }
+  function setLoading(btn, on) { btn.classList.toggle("loading", on); btn.disabled = on; }
+  function raw(id, data, err=false) {
+    const el = document.getElementById(id);
+    el.style.display = "block";
+    el.className = "response-box " + (err ? "error" : "success");
+    el.textContent = JSON.stringify(data, null, 2);
+  }
+
+  async function api(method, path, body=null) {
+    const opts = { method, headers: {"Content-Type":"application/json"} };
+    if (body) opts.body = JSON.stringify(body);
+    const r = await fetch(BASE + path, opts);
+    return r.json();
+  }
+
+  async function checkHealth() {
+    try {
+      const d = await api("GET", "/health");
+      document.getElementById("dot").className = "dot ok";
+      document.getElementById("status-text").textContent =
+        `Servidor REST conectado · ${d.service} v${d.version} ✅`;
+    } catch {
+      document.getElementById("dot").className = "dot err";
+      document.getElementById("status-text").textContent =
+        "No se puede conectar al servidor REST (¿está corriendo rest_server.py en puerto 5000?)";
+    }
+  }
+
+  async function doHealth(btn) {
+    setLoading(btn, true);
+    try { raw("health-raw", await api("GET", "/health")); }
+    catch(e) { raw("health-raw", {error:e.message}, true); }
+    setLoading(btn, false);
+  }
+
+  async function getLecciones(btn) {
+    setLoading(btn, true);
+    try {
+      const cat  = document.getElementById("filter-cat").value;
+      const diff = document.getElementById("filter-diff").value;
+      let qs = [];
+      if (cat)  qs.push(`category=${encodeURIComponent(cat)}`);
+      if (diff) qs.push(`difficulty=${encodeURIComponent(diff)}`);
+      const d = await api("GET", "/lecciones" + (qs.length ? "?"+qs.join("&") : ""));
+      raw("les-raw", d);
+      document.getElementById("les-grid").innerHTML = (d.lecciones||[]).map(l => `
+        <div class="lesson-card" onclick="jumpDetalle('${l.lesson_id}')">
+          <div class="lid">${l.lesson_id}</div>
+          <div class="ltitle">${l.title}</div>
+          <div class="lmeta">🪙 ${l.coins_reward} · ${l.difficulty} · ${l.num_questions} preguntas</div>
+        </div>
+      `).join("");
+    } catch(e) { raw("les-raw", {error:e.message}, true); }
+    setLoading(btn, false);
+  }
+
+  function jumpDetalle(id) {
+    document.querySelectorAll(".nav-btn")[2].click();
+    document.getElementById("det-id").value = id;
+  }
+
+  async function getDetalle(btn) {
+    setLoading(btn, true);
+    const id = document.getElementById("det-id").value;
+    try { raw("det-raw", await api("GET", `/lecciones/${id}`)); }
+    catch(e) { raw("det-raw", {error:e.message}, true); }
+    setLoading(btn, false);
+  }
+
+  async function loadRestQuiz() {
+    rqLessonId = document.getElementById("rq-lesson").value;
+    if (!rqLessonId) return;
+    rqIndex = 0;
+    const d = await api("GET", `/lecciones/${rqLessonId}`);
+    if (!d.questions) { raw("rquiz-raw", d, true); return; }
+    rqQuestions = d.questions;
+    document.getElementById("rquiz-area").style.display = "block";
+    document.getElementById("resp-feedback").style.display = "none";
+    renderRQ();
+  }
+
+  function renderRQ() {
+    const area = document.getElementById("rquiz-questions");
+    if (rqIndex >= rqQuestions.length) {
+      area.innerHTML = `<div style="text-align:center;padding:20px">
+        <div style="font-size:2.5rem">🎉</div>
+        <div style="font-family:'Fredoka One',cursive;font-size:1.2rem;color:#059669;margin-top:8px">¡Lección completada!</div>
+      </div>`;
+      return;
+    }
+    const q = rqQuestions[rqIndex];
+    area.innerHTML = `
+      <p style="font-size:.75rem;color:var(--muted);font-weight:800;margin-bottom:8px">PREGUNTA ${rqIndex+1} DE ${rqQuestions.length}</p>
+      <div class="quiz-q">❓ ${q.question}</div>
+      <div class="options-grid">
+        ${Object.entries(q.options).map(([k,v]) => `
+          <button class="opt-btn" onclick="sendRestAnswer('${q.question_id}','${k}',this)">${k}) ${v}</button>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  async function sendRestAnswer(qid, answer, btn) {
+    document.querySelectorAll(".opt-btn").forEach(b => b.disabled=true);
+    const kidId = document.getElementById("rq-kid").value || "kid_001";
+    try {
+      const d = await api("POST", "/respuestas", {
+        kid_id: kidId, lesson_id: rqLessonId, question_id: qid, answer
+      });
+      raw("rquiz-raw", d, !d.correct && d.correct !== undefined ? false : false);
+      btn.classList.add(d.correct ? "correct" : "wrong");
+      const fb = document.getElementById("resp-feedback");
+      fb.style.display = "block";
+      fb.className = d.correct ? "ok" : "err";
+      fb.innerHTML = `${d.correct?"✅":"❌"} ${d.encouragement}<br>
+        <small style="font-weight:600">${d.explanation}</small>
+        ${d.correct?`<span style="float:right">+${d.coins_earned} 🪙 (Total: ${d.total_coins})</span>`:""}`;
+      setTimeout(() => { rqIndex++; fb.style.display="none"; renderRQ(); }, 2200);
+    } catch(e) { raw("rquiz-raw", {error:e.message}, true); }
+  }
+
+  async function registrar(btn) {
+    setLoading(btn, true);
+    const name = document.getElementById("reg-name").value.trim();
+    const age  = parseInt(document.getElementById("reg-age").value);
+    if (!name || !age) { raw("reg-raw", {error:"Completa nombre y edad."}, true); setLoading(btn,false); return; }
+    try { raw("reg-raw", await api("POST", "/estudiantes", {name, age})); }
+    catch(e) { raw("reg-raw", {error:e.message}, true); }
+    setLoading(btn, false);
+  }
+
+  async function getPerfil(btn) {
+    setLoading(btn, true);
+    const id = document.getElementById("perf-kid").value;
+    try {
+      const d = await api("GET", `/estudiantes/${id}`);
+      raw("perf-raw", d, !!d.error);
+      if (!d.error) {
+        const completed = d.completed_lessons.length;
+        const total = 5;
+        document.getElementById("perf-display").style.display = "block";
+        document.getElementById("perf-display").innerHTML = `
+          <div class="stats-row">
+            <div class="stat-box"><div class="sv" style="color:var(--yellow)">🪙 ${d.total_coins}</div><div class="sl">Monedas</div></div>
+            <div class="stat-box"><div class="sv" style="color:#059669">Lv.${d.level}</div><div class="sl">Nivel</div></div>
+            <div class="stat-box"><div class="sv" style="color:var(--red)">🔥 ${d.streak_days}</div><div class="sl">Racha</div></div>
+            <div class="stat-box"><div class="sv" style="color:var(--blue)">${d.progress_percent}%</div><div class="sl">Avance</div></div>
+          </div>
+          <div style="margin-bottom:8px;font-weight:700;font-size:.9rem">✅ Completadas: ${d.completed_lessons.join(", ") || "Ninguna"}</div>
+          <div class="progress-row">
+            <div class="progress-label">Progreso total</div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${d.progress_percent}%"></div></div>
+            <div class="progress-pct">${d.progress_percent}%</div>
+          </div>
+        `;
+      }
+    } catch(e) { raw("perf-raw", {error:e.message}, true); }
+    setLoading(btn, false);
+  }
+
+  async function getRanking(btn) {
+    setLoading(btn, true);
+    try {
+      const d = await api("GET", "/ranking");
+      raw("rank-raw", d);
+      if (d.ranking) {
+        document.getElementById("rank-display").innerHTML = `
+          <table class="rank-table">
+            <thead><tr><th>Pos</th><th>Nombre</th><th>🪙 Monedas</th><th>Nivel</th><th>Lecciones</th><th>🔥 Racha</th></tr></thead>
+            <tbody>
+              ${d.ranking.map(r => `
+                <tr>
+                  <td style="font-size:1.2rem">${r.medal}</td>
+                  <td style="font-weight:800">${r.name}</td>
+                  <td style="color:var(--yellow);font-family:'Fredoka One',cursive">${r.total_coins} 🪙</td>
+                  <td>Lv.${r.level}</td>
+                  <td>${r.completed} lecs ✅</td>
+                  <td>🔥 ${r.streak_days} días</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        `;
+      }
+    } catch(e) { raw("rank-raw", {error:e.message}, true); }
+    setLoading(btn, false);
+  }
+
+  checkHealth();
+</script>
+</body>
+</html>

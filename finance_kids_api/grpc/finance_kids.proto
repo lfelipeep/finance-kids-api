@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+// Paquete del servicio educativo Finance Kids
+package financekids;
+
+// ─────────────────────────────────────────────────────────────────
+//  Servicio gRPC — Finance Kids (Plataforma educativa de finanzas)
+//  Permite gestionar lecciones, quizzes y progreso de los niños
+// ─────────────────────────────────────────────────────────────────
+service FinanceKidsService {
+  rpc GetLesson        (LessonRequest)     returns (LessonResponse);
+  rpc ListLessons      (EmptyRequest)      returns (LessonListResponse);
+  rpc SubmitQuizAnswer (QuizAnswerRequest) returns (QuizAnswerResponse);
+  rpc GetProgress      (ProgressRequest)   returns (ProgressResponse);
+  rpc GetBadges        (BadgeRequest)      returns (BadgeResponse);
+}
+
+// Mensaje vacío reutilizable
+message EmptyRequest {}
+
+// ── Lecciones ─────────────────────────────────────────────────────
+
+message LessonRequest {
+  string lesson_id = 1;
+}
+
+message QuizQuestion {
+  string   question_id = 1;
+  string   question    = 2;
+  repeated string options   = 3;   // Lista de opciones A, B, C, D
+}
+
+message LessonResponse {
+  string            lesson_id    = 1;
+  string            title        = 2;
+  string            description  = 3;
+  string            category     = 4;  // "ahorro", "presupuesto", etc.
+  int32             coins_reward = 5;  // Monedas al completar
+  repeated QuizQuestion questions = 6;
+}
+
+message LessonSummary {
+  string lesson_id    = 1;
+  string title        = 2;
+  string category     = 3;
+  int32  coins_reward = 4;
+  bool   completed    = 5;
+}
+
+message LessonListResponse {
+  repeated LessonSummary lessons = 1;
+}
+
+// ── Quiz / Respuestas ─────────────────────────────────────────────
+
+message QuizAnswerRequest {
+  string kid_id      = 1;
+  string lesson_id   = 2;
+  string question_id = 3;
+  string answer      = 4;  // "A", "B", "C" o "D"
+}
+
+message QuizAnswerResponse {
+  bool   correct      = 1;
+  string explanation  = 2;
+  int32  coins_earned = 3;
+  string encouragement = 4;  // Mensaje motivador para el niño
+}
+
+// ── Progreso del niño ─────────────────────────────────────────────
+
+message ProgressRequest {
+  string kid_id = 1;
+}
+
+message LessonProgress {
+  string lesson_id  = 1;
+  string title      = 2;
+  bool   completed  = 3;
+  int32  score      = 4;   // % de respuestas correctas
+}
+
+message ProgressResponse {
+  string                  kid_id           = 1;
+  string                  name             = 2;
+  int32                   total_coins      = 3;
+  int32                   level            = 4;
+  int32                   streak_days      = 5;   // Días seguidos practicando
+  repeated LessonProgress lessons_progress = 6;
+}
+
+// ── Insignias / Logros ────────────────────────────────────────────
+
+message BadgeRequest {
+  string kid_id = 1;
+}
+
+message Badge {
+  string name        = 1;
+  string description = 2;
+  string icon        = 3;  // Emoji representativo
+  bool   unlocked    = 4;
+}
+
+message BadgeResponse {
+  string          kid_id = 1;
+  repeated Badge  badges = 2;
+}
