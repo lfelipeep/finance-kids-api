@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finance Kids 🐷</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yellow: #FFD93D;
+    --orange: #FF6B35;
+    --green: #6BCB77;
+    --blue: #4D96FF;
+    --purple: #9B5DE5;
+    --pink: #F15BB5;
+    --bg: #FFF8F0;
+    --card: #FFFFFF;
+    --text: #1A1A2E;
+    --muted: #6B6B8A;
+    --radius: 20px;
+    --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  header { background: linear-gradient(135deg, #FF6B35 0%, #FFD93D 100%); padding: 1.2rem 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 20px rgba(255,107,53,0.3); position: sticky; top: 0; z-index: 100; }
+  .logo { font-family: 'Fredoka One', cursive; font-size: 1.8rem; color: white; text-shadow: 2px 3px 0px rgba(0,0,0,0.15); }
+  .header-right { display: flex; align-items: center; gap: 1rem; }
+  .kid-badge { background: rgba(255,255,255,0.9); border-radius: 50px; padding: 0.4rem 1rem; font-weight: 800; font-size: 0.9rem; color: var(--orange); display: flex; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.2s; }
+  .kid-badge:hover { transform: scale(1.05); }
+  .coins-display { background: rgba(255,255,255,0.9); border-radius: 50px; padding: 0.4rem 1rem; font-weight: 800; font-size: 0.9rem; color: #B8860B; display: flex; align-items: center; gap: 6px; }
+  nav { display: flex; gap: 0.5rem; padding: 1rem 2rem; background: white; border-bottom: 2px solid #FFE5D0; overflow-x: auto; }
+  .nav-btn { background: none; border: 2.5px solid transparent; border-radius: 50px; padding: 0.5rem 1.2rem; font-family: 'Nunito', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--muted); cursor: pointer; transition: all 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+  .nav-btn.active, .nav-btn:hover { background: var(--orange); color: white; border-color: var(--orange); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255,107,53,0.3); }
+  main { max-width: 900px; margin: 0 auto; padding: 2rem; }
+  .page { display: none; animation: fadeIn 0.3s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .welcome-banner { background: linear-gradient(135deg, #9B5DE5, #F15BB5); border-radius: var(--radius); padding: 2rem; color: white; margin-bottom: 2rem; position: relative; overflow: hidden; }
+  .welcome-banner::before { content: '🐷'; position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); font-size: 5rem; opacity: 0.3; }
+  .welcome-banner h1 { font-family: 'Fredoka One', cursive; font-size: 2rem; margin-bottom: 0.5rem; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .stat-card { background: var(--card); border-radius: var(--radius); padding: 1.25rem; text-align: center; box-shadow: var(--shadow); border-bottom: 4px solid transparent; transition: transform 0.2s; }
+  .stat-card:hover { transform: translateY(-4px); }
+  .stat-card:nth-child(1) { border-color: var(--yellow); }
+  .stat-card:nth-child(2) { border-color: var(--green); }
+  .stat-card:nth-child(3) { border-color: var(--blue); }
+  .stat-card:nth-child(4) { border-color: var(--purple); }
+  .stat-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+  .stat-val { font-family: 'Fredoka One', cursive; font-size: 2rem; color: var(--text); }
+  .stat-label { font-size: 0.8rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .section-title { font-family: 'Fredoka One', cursive; font-size: 1.5rem; color: var(--text); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+  .lessons-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.2rem; }
+  .lesson-card { background: var(--card); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow); cursor: pointer; transition: all 0.25s; border: 2.5px solid transparent; position: relative; overflow: hidden; }
+  .lesson-card:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(0,0,0,0.12); border-color: var(--orange); }
+  .lesson-card.completed { border-color: var(--green); }
+  .lesson-card.completed::after { content: '✓'; position: absolute; top: 1rem; right: 1rem; background: var(--green); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.85rem; }
+  .lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+  .lesson-title { font-family: 'Fredoka One', cursive; font-size: 1.15rem; margin-bottom: 0.4rem; }
+  .lesson-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.5; margin-bottom: 1rem; }
+  .lesson-meta { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .pill { font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 50px; display: inline-flex; align-items: center; gap: 4px; }
+  .pill-orange { background: #FFF0E5; color: var(--orange); }
+  .pill-green { background: #E8F8EA; color: #3A9C49; }
+  .pill-blue { background: #E5F0FF; color: var(--blue); }
+  .pill-purple { background: #F3EAFF; color: var(--purple); }
+  .pill-yellow { background: #FFFAE5; color: #B8860B; }
+  .quiz-wrap { max-width: 640px; margin: 0 auto; }
+  .quiz-header { background: linear-gradient(135deg, #4D96FF, #9B5DE5); border-radius: var(--radius); padding: 1.5rem; color: white; margin-bottom: 1.5rem; text-align: center; }
+  .quiz-header h2 { font-family: 'Fredoka One', cursive; font-size: 1.5rem; margin-bottom: 0.4rem; }
+  .quiz-progress { background: rgba(255,255,255,0.3); border-radius: 50px; height: 8px; margin-top: 1rem; overflow: hidden; }
+  .quiz-progress-bar { background: white; height: 100%; border-radius: 50px; transition: width 0.4s ease; }
+  .question-card { background: var(--card); border-radius: var(--radius); padding: 2rem; box-shadow: var(--shadow); margin-bottom: 1rem; }
+  .question-text { font-size: 1.15rem; font-weight: 800; margin-bottom: 1.5rem; line-height: 1.5; }
+  .option-btn { width: 100%; background: #F8F8FF; border: 2.5px solid #E8E8F0; border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 0.75rem; font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 700; color: var(--text); cursor: pointer; text-align: left; transition: all 0.2s; display: flex; align-items: center; gap: 1rem; }
+  .option-btn:hover:not(:disabled) { background: #EEF4FF; border-color: var(--blue); transform: translateX(6px); }
+  .option-btn.correct { background: #E8F8EA; border-color: var(--green); color: #1A6B25; }
+  .option-btn.wrong { background: #FFE8E8; border-color: #FF4D4D; color: #A00; }
+  .option-key { background: var(--text); color: white; width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; transition: background 0.2s; }
+  .correct .option-key { background: var(--green); }
+  .wrong .option-key { background: #FF4D4D; }
+  .feedback-box { border-radius: 14px; padding: 1rem 1.25rem; margin-top: 1rem; font-size: 0.95rem; line-height: 1.5; display: none; animation: fadeIn 0.3s ease; }
+  .feedback-box.show { display: block; }
+  .feedback-ok { background: #E8F8EA; border-left: 4px solid var(--green); color: #1A6B25; }
+  .feedback-err { background: #FFE8E8; border-left: 4px solid #FF4D4D; color: #A00; }
+  .next-btn { width: 100%; background: linear-gradient(135deg, var(--orange), #FFB347); border: none; border-radius: 14px; padding: 1rem; font-family: 'Fredoka One', cursive; font-size: 1.1rem; color: white; cursor: pointer; margin-top: 1rem; transition: all 0.2s; box-shadow: 0 4px 15px rgba(255,107,53,0.35); display: none; }
+  .next-btn.show { display: block; }
+  .next-btn:hover { transform: translateY(-3px); }
+  .result-card { background: var(--card); border-radius: var(--radius); padding: 2.5rem; text-align: center; box-shadow: var(--shadow); display: none; }
+  .result-card.show { display: block; animation: fadeIn 0.5s ease; }
+  .result-emoji { font-size: 5rem; margin-bottom: 1rem; display: block; }
+  .result-title { font-family: 'Fredoka One', cursive; font-size: 2rem; margin-bottom: 0.5rem; }
+  .result-coins { font-family: 'Fredoka One', cursive; font-size: 1.5rem; color: #B8860B; background: var(--yellow); display: inline-block; padding: 0.5rem 1.5rem; border-radius: 50px; margin: 1rem 0; }
+  .back-btn { background: var(--purple); border: none; border-radius: 14px; padding: 0.85rem 2rem; font-family: 'Fredoka One', cursive; font-size: 1rem; color: white; cursor: pointer; transition: all 0.2s; margin-top: 1rem; box-shadow: 0 4px 15px rgba(155,93,229,0.35); }
+  .back-btn:hover { transform: translateY(-3px); }
+  .ranking-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .ranking-item { background: var(--card); border-radius: var(--radius); padding: 1rem 1.5rem; display: flex; align-items: center; gap: 1rem; box-shadow: var(--shadow); transition: transform 0.2s; animation: fadeIn 0.3s ease; }
+  .ranking-item:hover { transform: translateX(6px); }
+  .rank-medal { font-size: 1.8rem; min-width: 40px; text-align: center; }
+  .rank-avatar { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Fredoka One', cursive; font-size: 1.2rem; color: white; flex-shrink: 0; }
+  .rank-info { flex: 1; }
+  .rank-name { font-weight: 800; font-size: 1rem; }
+  .rank-stats { font-size: 0.82rem; color: var(--muted); margin-top: 2px; }
+  .rank-coins { font-family: 'Fredoka One', cursive; font-size: 1.3rem; color: #B8860B; display: flex; align-items: center; gap: 4px; }
+  .profile-section { max-width: 520px; margin: 0 auto; }
+  .profile-card { background: var(--card); border-radius: var(--radius); padding: 2rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; }
+  .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--orange), var(--yellow)); display: flex; align-items: center; justify-content: center; font-family: 'Fredoka One', cursive; font-size: 2rem; color: white; margin: 0 auto 1rem; box-shadow: 0 4px 15px rgba(255,107,53,0.3); }
+  .form-group { margin-bottom: 1.25rem; }
+  .form-label { display: block; font-weight: 800; font-size: 0.9rem; margin-bottom: 0.4rem; }
+  .form-input { width: 100%; padding: 0.75rem 1rem; border: 2.5px solid #E8E8F0; border-radius: 12px; font-family: 'Nunito', sans-serif; font-size: 1rem; color: var(--text); transition: border-color 0.2s; background: #FAFAFA; }
+  .form-input:focus { outline: none; border-color: var(--orange); background: white; }
+  .submit-btn { width: 100%; background: linear-gradient(135deg, var(--green), #4CAF50); border: none; border-radius: 14px; padding: 1rem; font-family: 'Fredoka One', cursive; font-size: 1.15rem; color: white; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 15px rgba(107,203,119,0.4); }
+  .submit-btn:hover { transform: translateY(-3px); }
+  .loading { text-align: center; padding: 3rem; color: var(--muted); font-size: 1rem; }
+  .loading-spinner { width: 50px; height: 50px; border: 5px solid #FFE5D0; border-top-color: var(--orange); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box { background: #FFE8E8; border: 2px solid #FF4D4D; border-radius: 14px; padding: 1.25rem; text-align: center; color: #A00; font-weight: 700; }
+  .success-msg { background: #E8F8EA; border: 2px solid var(--green); border-radius: 14px; padding: 1rem; color: #1A6B25; font-weight: 700; text-align: center; margin-top: 1rem; animation: fadeIn 0.3s; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: var(--card); border-radius: var(--radius); padding: 2rem; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: fadeIn 0.3s; }
+  .modal h3 { font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 1rem; }
+  .kid-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+  .kid-option { background: #F8F8FF; border: 2px solid #E8E8F0; border-radius: 12px; padding: 0.75rem 1rem; cursor: pointer; font-weight: 700; transition: all 0.2s; display: flex; align-items: center; gap: 0.75rem; }
+  .kid-option:hover { border-color: var(--orange); background: #FFF5F0; }
+  .modal-close { background: #EEE; border: none; border-radius: 10px; padding: 0.6rem 1.2rem; font-family: 'Nunito', sans-serif; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
+  .filter-bar { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .filter-pill { background: white; border: 2px solid #E8E8F0; border-radius: 50px; padding: 0.4rem 1rem; font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; color: var(--muted); }
+  .filter-pill:hover, .filter-pill.active { background: var(--orange); border-color: var(--orange); color: white; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🐷 Finance Kids</div>
+  <div class="header-right">
+    <div class="coins-display" id="header-coins" style="display:none">🪙 <span id="coins-val">0</span></div>
+    <div class="kid-badge" onclick="openKidModal()" id="kid-badge">👤 Seleccionar niño</div>
+  </div>
+</header>
+
+<nav>
+  <button class="nav-btn active" onclick="showPage('home',this)">🏠 Inicio</button>
+  <button class="nav-btn" onclick="showPage('lessons',this)">📚 Lecciones</button>
+  <button class="nav-btn" onclick="showPage('ranking',this)">🏆 Ranking</button>
+  <button class="nav-btn" onclick="showPage('perfil',this)">⭐ Mi Perfil</button>
+</nav>
+
+<main>
+  <div class="page active" id="page-home">
+    <div class="welcome-banner">
+      <h1 id="welcome-name">¡Hola, explorador! 👋</h1>
+      <p>¿Listo para aprender sobre dinero hoy?</p>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">🪙</div><div class="stat-val" id="stat-coins">0</div><div class="stat-label">Monedas</div></div>
+      <div class="stat-card"><div class="stat-icon">📖</div><div class="stat-val" id="stat-lecciones">0</div><div class="stat-label">Lecciones hechas</div></div>
+      <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-val" id="stat-streak">0</div><div class="stat-label">Días seguidos</div></div>
+      <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-val" id="stat-progress">0%</div><div class="stat-label">Progreso total</div></div>
+    </div>
+    <div class="section-title">📚 Continúa aprendiendo</div>
+    <div class="lessons-grid" id="home-lessons"></div>
+  </div>
+
+  <div class="page" id="page-lessons">
+    <div class="section-title">📚 Todas las lecciones</div>
+    <div class="filter-bar">
+      <button class="filter-pill active" onclick="filterLessons('',this)">Todas</button>
+      <button class="filter-pill" onclick="filterLessons('conceptos básicos',this)">💡 Básicos</button>
+      <button class="filter-pill" onclick="filterLessons('ahorro',this)">🐷 Ahorro</button>
+      <button class="filter-pill" onclick="filterLessons('presupuesto',this)">📊 Presupuesto</button>
+      <button class="filter-pill" onclick="filterLessons('bancos',this)">🏦 Bancos</button>
+    </div>
+    <div class="lessons-grid" id="all-lessons"></div>
+  </div>
+
+  <div class="page" id="page-quiz">
+    <div class="quiz-wrap">
+      <div class="quiz-header">
+        <div style="font-size:0.85rem;opacity:0.8;margin-bottom:0.3rem" id="quiz-category"></div>
+        <h2 id="quiz-title"></h2>
+        <div style="font-size:0.9rem;opacity:0.85" id="quiz-prog-text"></div>
+        <div class="quiz-progress"><div class="quiz-progress-bar" id="quiz-bar"></div></div>
+      </div>
+      <div id="quiz-content"></div>
+      <div class="result-card" id="result-card">
+        <span class="result-emoji" id="res-emoji"></span>
+        <div class="result-title" id="res-title"></div>
+        <div style="color:var(--muted);margin-bottom:0.5rem" id="res-msg"></div>
+        <div class="result-coins" id="res-coins"></div>
+        <br>
+        <button class="back-btn" onclick="backToLessons()">← Volver a lecciones</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-ranking">
+    <div class="section-title">🏆 Tabla de campeones</div>
+    <div class="ranking-list" id="ranking-list"><div class="loading"><div class="loading-spinner"></div>Cargando ranking...</div></div>
+  </div>
+
+  <div class="page" id="page-perfil">
+    <div class="profile-section">
+      <div class="section-title">⭐ Mi Perfil</div>
+      <div class="profile-card" style="text-align:center">
+        <div class="profile-avatar" id="p-avatar">?</div>
+        <div style="font-family:'Fredoka One',cursive;font-size:1.4rem" id="p-name">Selecciona un niño arriba</div>
+        <div style="color:var(--muted);font-size:0.9rem;margin-top:0.3rem" id="p-level"></div>
+        <div id="p-stats" style="margin-top:1rem;display:grid;grid-template-columns:1fr 1fr;gap:0.75rem"></div>
+      </div>
+      <div class="profile-card">
+        <h3 style="font-family:'Fredoka One',cursive;font-size:1.2rem;margin-bottom:1rem">➕ Registrar nuevo niño</h3>
+        <div class="form-group">
+          <label class="form-label">Nombre</label>
+          <input class="form-input" type="text" id="reg-name" placeholder="Ej: Valentina">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Edad</label>
+          <input class="form-input" type="number" id="reg-age" placeholder="Ej: 9" min="4" max="18">
+        </div>
+        <button class="submit-btn" onclick="registrarNino()">🎉 ¡Registrarme!</button>
+        <div id="reg-msg"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="modal-overlay" id="kid-modal">
+  <div class="modal">
+    <h3>👤 ¿Quién está aprendiendo?</h3>
+    <div class="kid-list" id="kid-list"></div>
+    <button class="modal-close" onclick="closeKidModal()">Cancelar</button>
+  </div>
+</div>
+
+<script>
+const API='https://finance-kids-rest.onrender.com';
+let allLessons=[],currentKid=null,kidProfile=null,quizState={};
+const COLORS=['#FF6B35','#9B5DE5','#4D96FF','#6BCB77','#F15BB5','#FFD93D'];
+const CAT_EMOJI={'conceptos básicos':'💡','ahorro':'🐷','presupuesto':'📊','bancos':'🏦'};
+
+function showPage(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(name==='ranking')loadRanking();
+  if(name==='lessons')renderAllLessons();
+  if(name==='perfil')renderPerfil();
+}
+
+async function apiFetch(path,opts={}){
+  const res=await fetch(API+path,{headers:{'Content-Type':'application/json'},...opts});
+  return res.json();
+}
+
+async function init(){
+  try{
+    const data=await apiFetch('/api/lecciones');
+    allLessons=data.lecciones||[];
+    renderHomeLessons();renderAllLessons();
+  }catch(e){}
+  const saved=localStorage.getItem('fk_kid');
+  if(saved)selectKid(saved,false);
+}
+
+async function openKidModal(){
+  document.getElementById('kid-modal').classList.add('show');
+  const list=document.getElementById('kid-list');
+  list.innerHTML='<div style="color:var(--muted);font-size:0.9rem">Cargando...</div>';
+  const base=['kid_001','kid_002'];
+  const extra=JSON.parse(localStorage.getItem('fk_custom_kids')||'[]');
+  const kids=[...new Set([...base,...extra])];
+  const results=await Promise.allSettled(kids.map(id=>apiFetch('/api/estudiantes/'+id)));
+  list.innerHTML='';
+  results.forEach((r,i)=>{
+    if(r.status==='fulfilled'&&!r.value.error){
+      const k=r.value;
+      const el=document.createElement('div');
+      el.className='kid-option'+(currentKid===kids[i]?' selected':'');
+      el.innerHTML=`<span style="font-size:1.5rem">👤</span><div><div style="font-weight:800">${k.name}</div><div style="font-size:0.8rem;color:var(--muted)">${k.age} años · 🪙 ${k.total_coins}</div></div>`;
+      el.onclick=()=>{selectKid(kids[i]);closeKidModal();};
+      list.appendChild(el);
+    }
+  });
+  if(!list.children.length)list.innerHTML='<div style="color:var(--muted);font-size:0.9rem">No hay estudiantes. ¡Regístrate abajo!</div>';
+}
+
+function closeKidModal(){document.getElementById('kid-modal').classList.remove('show');}
+
+async function selectKid(id,save=true){
+  currentKid=id;if(save)localStorage.setItem('fk_kid',id);
+  try{kidProfile=await apiFetch('/api/estudiantes/'+id);updateKidUI();}catch(e){}
+}
+
+function updateKidUI(){
+  if(!kidProfile||kidProfile.error)return;
+  const k=kidProfile;
+  document.getElementById('kid-badge').innerHTML=`👤 ${k.name}`;
+  document.getElementById('header-coins').style.display='flex';
+  document.getElementById('coins-val').textContent=k.total_coins;
+  document.getElementById('welcome-name').textContent=`¡Hola, ${k.name}! 👋`;
+  document.getElementById('stat-coins').textContent=k.total_coins;
+  document.getElementById('stat-lecciones').textContent=k.completed_lessons.length;
+  document.getElementById('stat-streak').textContent=k.streak_days;
+  document.getElementById('stat-progress').textContent=k.progress_percent+'%';
+  renderHomeLessons();
+}
+
+function lessonCardHTML(l){
+  const done=kidProfile&&kidProfile.completed_lessons&&kidProfile.completed_lessons.includes(l.lesson_id);
+  const diffClass=l.difficulty==='fácil'?'pill-green':l.difficulty==='medio'?'pill-blue':'pill-orange';
+  const emoji=CAT_EMOJI[l.category]||'📖';
+  return `<div class="lesson-card ${done?'completed':''}" onclick="startQuiz('${l.lesson_id}')">
+    <span class="lesson-emoji">${emoji}</span>
+    <div class="lesson-title">${l.title}</div>
+    <div class="lesson-desc">${l.description}</div>
+    <div class="lesson-meta">
+      <span class="pill pill-yellow">🪙 ${l.coins_reward}</span>
+      <span class="pill ${diffClass}">${l.difficulty}</span>
+      <span class="pill pill-purple">❓ ${l.num_questions}</span>
+    </div>
+  </div>`;
+}
+
+function renderHomeLessons(){
+  document.getElementById('home-lessons').innerHTML=allLessons.slice(0,4).map(lessonCardHTML).join('');
+}
+
+function renderAllLessons(filter=''){
+  const list=filter?allLessons.filter(l=>l.category===filter):allLessons;
+  document.getElementById('all-lessons').innerHTML=list.length?list.map(lessonCardHTML).join(''):'<div style="color:var(--muted);padding:2rem;text-align:center">No hay lecciones en esta categoría.</div>';
+}
+
+function filterLessons(cat,btn){
+  document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');renderAllLessons(cat);
+}
+
+async function startQuiz(lessonId){
+  if(!currentKid){openKidModal();return;}
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-quiz').classList.add('active');
+  document.getElementById('quiz-content').innerHTML='<div class="loading"><div class="loading-spinner"></div>Cargando...</div>';
+  document.getElementById('result-card').classList.remove('show');
+  document.getElementById('quiz-content').style.display='';
+  try{
+    const lesson=await apiFetch('/api/lecciones/'+lessonId);
+    quizState={lesson,currentQ:0,totalCoins:0,correct:0};
+    document.getElementById('quiz-category').textContent=(CAT_EMOJI[lesson.category]||'')+' '+lesson.category;
+    document.getElementById('quiz-title').textContent=lesson.title;
+    renderQuestion();
+  }catch(e){
+    document.getElementById('quiz-content').innerHTML='<div class="error-box">Error cargando la lección.</div>';
+  }
+}
+
+function renderQuestion(){
+  const{lesson,currentQ}=quizState;
+  const q=lesson.questions[currentQ];
+  const total=lesson.questions.length;
+  document.getElementById('quiz-prog-text').textContent=`Pregunta ${currentQ+1} de ${total}`;
+  document.getElementById('quiz-bar').style.width=((currentQ/total)*100)+'%';
+  const opts=Object.entries(q.options).map(([k,v])=>`
+    <button class="option-btn" id="opt-${k}" onclick="answerQuestion('${lesson.lesson_id}','${q.question_id}','${k}')">
+      <span class="option-key">${k}</span>${v}
+    </button>`).join('');
+  document.getElementById('quiz-content').innerHTML=`
+    <div class="question-card">
+      <div class="question-text">${q.question}</div>
+      ${opts}
+      <div class="feedback-box" id="feedback"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">${currentQ+1<total?'Siguiente pregunta →':'¡Ver resultado! 🎉'}</button>
+    </div>`;
+}
+
+async function answerQuestion(lessonId,questionId,answer){
+  document.querySelectorAll('.option-btn').forEach(b=>b.disabled=true);
+  try{
+    const res=await apiFetch('/api/respuestas',{method:'POST',body:JSON.stringify({kid_id:currentKid,lesson_id:lessonId,question_id:questionId,answer})});
+    const btn=document.getElementById('opt-'+answer);
+    const fb=document.getElementById('feedback');
+    if(res.correct){
+      btn.classList.add('correct');quizState.correct++;quizState.totalCoins+=res.coins_earned;
+      fb.className='feedback-box show feedback-ok';
+      fb.innerHTML=`<strong>${res.encouragement}</strong><br>${res.explanation}`;
+    }else{
+      btn.classList.add('wrong');
+      fb.className='feedback-box show feedback-err';
+      fb.innerHTML=`<strong>${res.encouragement}</strong><br>${res.explanation}`;
+    }
+    document.getElementById('next-btn').classList.add('show');
+  }catch(e){
+    document.getElementById('feedback').className='feedback-box show feedback-err';
+    document.getElementById('feedback').textContent='Error enviando respuesta.';
+    document.getElementById('next-btn').classList.add('show');
+  }
+}
+
+function nextQuestion(){
+  quizState.currentQ++;
+  if(quizState.currentQ>=quizState.lesson.questions.length)showResult();
+  else renderQuestion();
+}
+
+function showResult(){
+  document.getElementById('quiz-content').style.display='none';
+  document.getElementById('result-card').classList.add('show');
+  const{correct,lesson,totalCoins}=quizState;
+  const total=lesson.questions.length;
+  const pct=Math.round((correct/total)*100);
+  let emoji,title,msg;
+  if(pct===100){emoji='🏆';title='¡Perfecto!';msg='Respondiste todo correcto. ¡Eres increíble!';}
+  else if(pct>=50){emoji='⭐';title='¡Muy bien!';msg=`Acertaste ${correct} de ${total} preguntas.`;}
+  else{emoji='💪';title='¡Sigue intentando!';msg=`Acertaste ${correct} de ${total}. ¡Puedes mejorar!`;}
+  document.getElementById('res-emoji').textContent=emoji;
+  document.getElementById('res-title').textContent=title;
+  document.getElementById('res-msg').textContent=msg;
+  document.getElementById('res-coins').textContent=`🪙 +${totalCoins} monedas ganadas`;
+  document.getElementById('quiz-bar').style.width='100%';
+  if(currentKid)selectKid(currentKid,false);
+}
+
+function backToLessons(){
+  document.getElementById('quiz-content').style.display='';
+  showPage('lessons',document.querySelectorAll('.nav-btn')[1]);
+}
+
+async function loadRanking(){
+  const container=document.getElementById('ranking-list');
+  container.innerHTML='<div class="loading"><div class="loading-spinner"></div>Cargando ranking...</div>';
+  try{
+    const data=await apiFetch('/api/ranking');
+    container.innerHTML='';
+    data.ranking.forEach((k,i)=>{
+      const color=COLORS[i%COLORS.length];
+      const initials=k.name.slice(0,2).toUpperCase();
+      const item=document.createElement('div');
+      item.className='ranking-item';
+      item.style.animationDelay=(i*0.07)+'s';
+      if(i<3)item.style.borderLeft=`5px solid ${COLORS[i]}`;
+      item.innerHTML=`<div class="rank-medal">${k.medal}</div><div class="rank-avatar" style="background:${color}">${initials}</div><div class="rank-info"><div class="rank-name">${k.name}</div><div class="rank-stats">Nivel ${k.level} · ${k.completed} lecciones · ${k.streak_days} días seguidos</div></div><div class="rank-coins">🪙 ${k.total_coins}</div>`;
+      container.appendChild(item);
+    });
+  }catch(e){container.innerHTML='<div class="error-box">No se pudo cargar el ranking.</div>';}
+}
+
+function renderPerfil(){
+  if(!kidProfile||kidProfile.error)return;
+  const k=kidProfile;
+  document.getElementById('p-avatar').textContent=k.name.slice(0,2).toUpperCase();
+  document.getElementById('p-name').textContent=k.name;
+  document.getElementById('p-level').textContent=`Nivel ${k.level} · ${k.age} años`;
+  document.getElementById('p-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-icon">🪙</div><div class="stat-val">${k.total_coins}</div><div class="stat-label">Monedas</div></div>
+    <div class="stat-card"><div class="stat-icon">📖</div><div class="stat-val">${k.completed_lessons.length}</div><div class="stat-label">Lecciones</div></div>
+    <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-val">${k.streak_days}</div><div class="stat-label">Racha</div></div>
+    <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-val">${k.progress_percent}%</div><div class="stat-label">Progreso</div></div>`;
+}
+
+async function registrarNino(){
+  const name=document.getElementById('reg-name').value.trim();
+  const age=parseInt(document.getElementById('reg-age').value);
+  const msgEl=document.getElementById('reg-msg');
+  if(!name||!age){msgEl.innerHTML='<div class="error-box">Completa nombre y edad.</div>';return;}
+  msgEl.innerHTML='<div style="color:var(--muted);text-align:center">Registrando...</div>';
+  try{
+    const res=await apiFetch('/api/estudiantes',{method:'POST',body:JSON.stringify({name,age})});
+    if(res.success){
+      msgEl.innerHTML=`<div class="success-msg">🎉 ${res.message}<br><strong>ID: ${res.kid_id}</strong></div>`;
+      const saved=JSON.parse(localStorage.getItem('fk_custom_kids')||'[]');
+      saved.push(res.kid_id);localStorage.setItem('fk_custom_kids',JSON.stringify(saved));
+      selectKid(res.kid_id);
+      document.getElementById('reg-name').value='';document.getElementById('reg-age').value='';
+    }else{msgEl.innerHTML=`<div class="error-box">${res.error||'Error.'}</div>`;}
+  }catch(e){msgEl.innerHTML='<div class="error-box">Error de conexión.</div>';}
+}
+
+document.getElementById('kid-modal').addEventListener('click',function(e){if(e.target===this)closeKidModal();});
+init();
+</script>
+</body>
+</html>
